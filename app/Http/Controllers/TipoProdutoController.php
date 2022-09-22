@@ -44,7 +44,7 @@ class TipoProdutoController extends Controller
      */
     public function store(Request $request)
     {
-        $tipoProduto = TipoProduto();
+        $tipoProduto = new TipoProduto();
         $tipoProduto->descricao = $request->descricao;
         $tipoProduto->save();
         return $this->index();
@@ -59,7 +59,12 @@ class TipoProdutoController extends Controller
      */
     public function show($id)
     {
-        //
+        $tipoProdutos = DB::select('SELECT id, descricao, updated_at, created_at FROM tipo_produtos WHERE id = ?', [$id]);
+
+        if (count($tipoProdutos) > 0)
+            return view("tipoproduto.show")->with("tipoProduto", $tipoProdutos[0]);
+
+        echo "TipoProduto não encontrado.";
     }
 
     /**
@@ -70,7 +75,13 @@ class TipoProdutoController extends Controller
      */
     public function edit($id)
     {
-        //
+        $tipoProduto = TipoProduto::find($id);
+
+        if (isset($tipoProduto)) {
+            return view("tipoproduto.edit")->with("tipoProduto", $tipoProduto);
+        }
+
+        echo "TipoProduto não encontrado";
     }
 
     /**
@@ -82,7 +93,16 @@ class TipoProdutoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $tipoProduto = TipoProduto::find($id);
+
+        if (isset($tipoProduto)) {
+            $tipoProduto->descricao = $request->descricao;
+            $tipoProduto->update();
+
+            return $this->index();
+        }
+
+        echo "Produto não encontrado";
     }
 
     /**
