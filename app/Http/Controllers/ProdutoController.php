@@ -86,8 +86,8 @@ class ProdutoController extends Controller
         // Mando carregar a view show de Produto, 
         // criando dentro dela um objeto chamado "produto"
         // com o conteúdo de $produto que está no controlador
-        if(count($produtos) > 0)
-            return view("Produto/show")->with("produto", $produtos[0]);
+        if (count($produtos) > 0)
+            return view("produto.show")->with("produto", $produtos[0]);
         // TODO: Implementar mensagens de erro.
         echo "Produto não encontrado";
     }
@@ -102,12 +102,12 @@ class ProdutoController extends Controller
     {
         $produto = Produto::find($id); // retorna um obj ou null
         // Pergunto se o obj é válido ou null
-        if( isset($produto) ){
+        if (isset($produto)) {
             // Array com todos os TipoProdutos no BD
             $tipoProdutos = TipoProduto::all();
             return view("Produto/edit")
-                        ->with("produto", $produto)
-                        ->with("tipoProdutos", $tipoProdutos);
+                ->with("produto", $produto)
+                ->with("tipoProdutos", $tipoProdutos);
         }
         // #TODO implementar tratamento de exceptions
         echo "Produto não encontrado";
@@ -127,7 +127,7 @@ class ProdutoController extends Controller
         // Dentro dessa variável eu já tenho o produto que eu quero atualizar
 
         // Pergunto se o obj é válido ou null (se ele existe)
-        if( isset($produto) ){
+        if (isset($produto)) {
             $produto->nome = $request->nome;
             $produto->preco = $request->preco;
             $produto->Tipo_Produtos_id = $request->Tipo_Produtos_id;
