@@ -25,6 +25,22 @@ class TipoProdutoController extends Controller
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexMessage($message)
+    {
+        try {
+            $tipoProdutos = DB::select('SELECT * FROM TIPO_PRODUTOS');
+        } catch (\Throwable $th) {
+            return view("TipoProduto/index")->with("tipoProdutos", [])->with("message", [$th->getMessage(), "danger"]);
+        }
+
+        return view("TipoProduto/index")->with("tipoProdutos", $tipoProdutos)->with("message", $message);
+    }
+
+    /**
      * Show the form for creating a new resource.
      * Mostrar um formulário para criação de um novo recurso
      *
@@ -32,6 +48,11 @@ class TipoProdutoController extends Controller
      */
     public function create()
     {
+        try {
+            return view("TipoProduto/create");
+        } catch (\Throwable $th) {
+            return $this->indexMessage([$th->getMessage(), "danger"]);
+        }
         return view("TipoProduto/create");
     }
 
@@ -44,10 +65,16 @@ class TipoProdutoController extends Controller
      */
     public function store(Request $request)
     {
-        $tipoProduto = new TipoProduto();
-        $tipoProduto->descricao = $request->descricao;
-        $tipoProduto->save();
-        return $this->index();
+        try {
+            $tipoProduto = new TipoProduto();
+            $tipoProduto->descricao = $request->descricao;
+            $tipoProduto->save();
+            return $this->index();
+        } catch (\Throwable $th) {
+            return $this->indexMessage([$th->getMessage(), "danger"]);
+        }
+
+        return $this->indexMessage(["TipoProduto cadastrado com sucesso", "success"]);
     }
 
     /**
@@ -59,12 +86,16 @@ class TipoProdutoController extends Controller
      */
     public function show($id)
     {
-        $tipoProdutos = DB::select('SELECT id, descricao, updated_at, created_at FROM tipo_produtos WHERE id = ?', [$id]);
+        try {
+            $tipoProdutos = DB::select('SELECT id, descricao, updated_at, created_at FROM tipo_produtos WHERE id = ?', [$id]);
 
-        if (count($tipoProdutos) > 0)
-            return view("tipoproduto.show")->with("tipoProduto", $tipoProdutos[0]);
+            if (count($tipoProdutos) > 0)
+                return view("tipoproduto.show")->with("tipoProduto", $tipoProdutos[0]);
 
-        echo "TipoProduto não encontrado.";
+            return $this->indexMessage(["TipoProduto não encontrado", "warning"]);
+        } catch (\Throwable $th) {
+            return $this->indexMessage([$th->getMessage(), "danger"]);
+        }
     }
 
     /**
@@ -75,13 +106,18 @@ class TipoProdutoController extends Controller
      */
     public function edit($id)
     {
-        $tipoProduto = TipoProduto::find($id);
+        try {
+            $tipoProduto = TipoProduto::find($id);
 
-        if (isset($tipoProduto)) {
-            return view("tipoproduto.edit")->with("tipoProduto", $tipoProduto);
+            if (isset($tipoProduto)) {
+                return view("tipoproduto.edit")->with("tipoProduto", $tipoProduto);
+            }
+
+            return $this->indexMessage(["Produto não encontrado", "warning"]);
+        } catch (\Throwable $th) {
+            return $this->indexMessage([$th->getMessage(), "danger"]);
         }
-
-        echo "TipoProduto não encontrado";
+        $tipoProduto = TipoProduto::find($id);
     }
 
     /**
@@ -93,16 +129,19 @@ class TipoProdutoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $tipoProduto = TipoProduto::find($id);
+        try {
+            $tipoproduto = tipoproduto::find($id);
 
-        if (isset($tipoProduto)) {
-            $tipoProduto->descricao = $request->descricao;
-            $tipoProduto->update();
+            if (isset($tipoproduto)) {
+                $tipoproduto->descricao = $request->descricao;
+                $tipoproduto->update();
 
-            return $this->index();
+                return $this->index();
+            }
+            return $this->indexMessage(["TipoProduto não encontrado", "warning"]);
+        } catch (\Throwable $th) {
+            return $this->indexMessage([$th->getMessage(), "danger"]);
         }
-
-        echo "Produto não encontrado";
     }
 
     /**
@@ -113,13 +152,18 @@ class TipoProdutoController extends Controller
      */
     public function destroy($id)
     {
-        $tipoProduto = TipoProduto::find($id);
+        try {
+            $tipoproduto = tipoproduto::find($id);
 
-        if (isset($tipoProduto)) {
-            $tipoProduto->delete();
-            return \Redirect::route('tipoproduto.index');
-        } else {
-            echo "Produto não encontrado";
+            if (isset($tipoproduto)) {
+                $tipoproduto->delete();
+
+                return $this->indexMessage(["Produto removido com sucesso", "success"]);
+            } else {
+                return $this->indexMessage(["TipoProduto não encontrado", "warning"]);
+            }
+        } catch (\Throwable $th) {
+            return $this->indexMessage([$th->getMessage(), "danger"]);
         }
     }
 }
